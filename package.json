@@ -1,0 +1,32 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "@tailwindcss/forms": "^0.5.7",
+        "alpinejs": "^3.13.3",
+        "autoprefixer": "^10.4.17",
+        "axios": "^1.6.4",
+        "laravel-echo": "^2.0.2",
+        "laravel-vite-plugin": "^1.0.0",
+        "postcss": "^8.4.35",
+        "tailwindcss": "^3.4.1",
+        "vite": "^5.0.0"
+    },
+    "name": "tic-tac-toe-game",
+    "description": "<p align=\"center\"><a href=\"https://laravel.com\" target=\"_blank\"><img src=\"https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg\" width=\"400\" alt=\"Laravel Logo\"></a></p>",
+    "version": "1.0.0",
+    "main": "vite.config.js",
+    "directories": {
+        "test": "tests"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "crypto-browserify": "^3.12.1",
+        "pusher-js": "^8.4.0-rc2"
+    }
+}

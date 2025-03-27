@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.main-container {
+    @apply min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-purple-700;
+}
+
+.game-layout {
+    @apply container mx-auto p-6 grid grid-cols-1 md:grid-cols-[300px_1fr_300px] gap-8;
+}
+
+.game-board {
+    @apply grid grid-cols-3 gap-3 w-96 h-96 mx-auto mt-4 bg-white/5 backdrop-blur-lg p-4 rounded-2xl;
+}
+
+.game-cell {
+    @apply flex items-center justify-center text-6xl font-bold rounded-xl cursor-pointer transition-all duration-300 border border-white/5 hover:border-white/20 hover:bg-white/5 backdrop-blur;
+}
+
+.game-cell.x {
+    @apply text-blue-400 hover:text-blue-300;
+}
+
+.game-cell.o {
+    @apply text-rose-400 hover:text-rose-300;
+}
+
+.game-status {
+    @apply text-2xl font-bold text-center mt-6 text-white/90;
+}
+
+.control-buttons {
+    @apply flex justify-center gap-4 mb-6;
+}
+
+.create-match, .refresh-button {
+    @apply px-6 py-3 font-semibold text-white rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300 backdrop-blur-sm border border-white/10;
+}
+
+.available-matches {
+    @apply bg-white/5 backdrop-blur-lg rounded-2xl p-4;
+}
+
+.match-list {
+    @apply space-y-3;
+}
+
+.match-item {
+    @apply bg-white/5 rounded-xl p-3 border border-white/10 hover:bg-white/10 transition-all cursor-pointer;
+}
+
+.player-info {
+    @apply bg-white/5 backdrop-blur rounded-xl p-3 mb-3 border border-white/10;
+}
+
+.player-symbol {
+    @apply w-8 h-8 flex items-center justify-center rounded-lg text-lg font-bold;
+}
+
+.player-symbol.x {
+    @apply bg-blue-500/20 text-blue-300;
+}
+
+.player-symbol.o {
+    @apply bg-rose-500/20 text-rose-300;
+}
+
+.connection-status {
+    @apply flex items-center gap-2 bg-white/5 rounded-xl p-3 mb-4 border border-white/10;
+}
+
+.status-dot {
+    @apply w-2 h-2 rounded-full;
+}
+
+.status-dot.connected {
+    @apply bg-green-400;
+}
+
+.status-dot.disconnected {
+    @apply bg-red-400;
+}

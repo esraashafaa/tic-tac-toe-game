@@ -1,0 +1,28 @@
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+<<<<<<< HEAD
+docker-compose.override.yml
+=======
+>>>>>>> db5c7c0587659d72dba82557d4d0eba2e5e8d79b
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
+<<<<<<< HEAD
+/.vagrant
+.env.*.local
+=======
+>>>>>>> db5c7c0587659d72dba82557d4d0eba2e5e8d79b

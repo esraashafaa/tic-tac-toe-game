@@ -1,0 +1,78 @@
+.match-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 20px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.match-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.match-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.match-item.active {
+    background: #e3f2fd;
+    border: 2px solid #2196f3;
+}
+
+.match-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.match-code {
+    font-weight: bold;
+    color: #333;
+}
+
+.player-name {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.join-button {
+    padding: 6px 12px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.join-button:hover {
+    background: #45a049;
+}
+
+.refresh-button {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    background: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.refresh-button:hover {
+    background: #1976d2;
+} 
