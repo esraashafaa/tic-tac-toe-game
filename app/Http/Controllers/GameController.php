@@ -539,7 +539,7 @@ class GameController extends Controller
         }
     }
 
-    public function makeMove(Request $request, GameMatch $match)
+    public function makeMoveForMatch(Request $request, GameMatch $match)
     {
         try {
             $validated = $request->validate([

@@ -25,18 +25,15 @@ class GameMove implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PresenceChannel('match.' . $this->match->id);
-    }
-
-    public function broadcastAs()
-    {
-        return 'game.move';
+        return new Channel('game.match.' . $this->match->id);
     }
 
     public function broadcastWith()
     {
         return [
-            'move' => $this->move
+            'position' => $this->move['position'],
+            'symbol' => $this->move['symbol'],
+            'player_id' => isset($this->move['player_id']) ? $this->move['player_id'] : null
         ];
     }
 } 

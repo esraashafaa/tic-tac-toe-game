@@ -2,22 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\GameRoom;
+use App\Models\GameMatch;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Log;
 
 class GameRoomController extends Controller
 {
-    // عرض قائمة الغرف المتاحة
+    // عرض قائمة الغرف المتاحة (المباريات في وضع الانتظار)
     public function index()
     {
-        $rooms = GameRoom::where('status', 'waiting')
+        // إضافة طباعة تصحيحية
+        Log::info('تم استدعاء GameRoomController@index');
+        
+        $rooms = GameMatch::where('status', 'waiting')
             ->orWhere('status', 'playing')
             ->get();
-        return response()->json($rooms);
+        
+        Log::info('تم العثور على ' . $rooms->count() . ' مباراة');
+        
+        return response()->json(['rooms' => $rooms]);
     }
 
-    // إنشاء غرفة جديدة
+    // إنشاء غرفة جديدة (مباراة)
     public function store(Request $request)
     {
         $request->validate([
@@ -26,58 +32,66 @@ class GameRoomController extends Controller
             'symbol' => 'required|in:X,O'
         ]);
 
-        $room = GameRoom::create([
-            'name' => $request->name,
+        $match = GameMatch::create([
+            'match_code' => GameMatch::generateMatchCode(),
             'player1_id' => $request->player_id,
+            'player1_name' => $request->name,
             'player1_symbol' => $request->symbol,
             'player2_symbol' => $request->symbol === 'X' ? 'O' : 'X',
-            'status' => 'waiting'
+            'status' => 'waiting',
+            'board_state' => array_fill(0, 9, '')
         ]);
 
         return response()->json([
             'message' => 'تم إنشاء الغرفة بنجاح',
-            'room' => $room
+            'room' => $match
         ]);
     }
 
-    // الانضمام إلى غرفة
-    public function join(Request $request, GameRoom $room)
+    // الانضمام إلى غرفة (مباراة)
+    public function join(Request $request, $roomId)
     {
-        if ($room->isFull()) {
+        $match = GameMatch::findOrFail($roomId);
+        
+        if ($match->isFull()) {
             return response()->json([
                 'message' => 'الغرفة ممتلئة'
             ], 400);
         }
 
-        if ($room->hasPlayer($request->player_id)) {
+        if ($match->hasPlayer($request->player_id)) {
             return response()->json([
                 'message' => 'أنت موجود بالفعل في هذه الغرفة'
             ], 400);
         }
 
-        $room->player2_id = $request->player_id;
-        $room->status = 'playing';
-        $room->save();
+        $match->update([
+            'player2_id' => $request->player_id,
+            'player2_name' => $request->player_name,
+            'status' => 'playing'
+        ]);
 
-        // بث حدث انضمام اللاعب
-        Broadcast::channel('game.' . $room->id)->send(new \App\Events\PlayerJoined($room));
+        // بث حدث انضمام اللاعب باستخدام broadcast helper
+        broadcast(new \App\Events\PlayerJoined($match));
 
         return response()->json([
             'message' => 'تم الانضمام للغرفة بنجاح',
-            'room' => $room
+            'room' => $match
         ]);
     }
 
     // إرسال حركة في اللعبة
-    public function move(Request $request, GameRoom $room)
+    public function move(Request $request, $roomId)
     {
-        if (!$room->hasPlayer($request->player_id)) {
+        $match = GameMatch::findOrFail($roomId);
+        
+        if (!$match->hasPlayer($request->player_id)) {
             return response()->json([
                 'message' => 'أنت غير موجود في هذه الغرفة'
             ], 400);
         }
 
-        if (!$room->isPlayerTurn($request->player_id)) {
+        if (!$match->isPlayerTurn($request->player_id)) {
             return response()->json([
                 'message' => 'ليس دورك'
             ], 400);
@@ -89,21 +103,35 @@ class GameRoomController extends Controller
             'symbol' => 'required|in:X,O'
         ]);
 
+        // تحديث اللوحة
+        $match->updateBoard($request->position, $request->symbol);
+        
+        // تبديل الدور
+        $newTurn = $request->symbol === 'X' ? 'O' : 'X';
+        $match->update(['current_turn' => $newTurn]);
+
         // بث الحركة للاعبين
-        Broadcast::channel('game.' . $room->id)->send(new \App\Events\GameMove([
+        broadcast(new \App\Events\GameMove($match, [
             'position' => $request->position,
-            'symbol' => $request->symbol
+            'symbol' => $request->symbol,
+            'player_id' => $request->player_id
         ]));
 
         return response()->json([
-            'message' => 'تم إرسال الحركة بنجاح'
+            'message' => 'تم إرسال الحركة بنجاح',
+            'move' => [
+                'position' => $request->position,
+                'symbol' => $request->symbol
+            ]
         ]);
     }
 
     // إرسال رسالة في الدردشة
-    public function message(Request $request, GameRoom $room)
+    public function message(Request $request, $roomId)
     {
-        if (!$room->hasPlayer($request->player_id)) {
+        $match = GameMatch::findOrFail($roomId);
+        
+        if (!$match->hasPlayer($request->player_id)) {
             return response()->json([
                 'message' => 'أنت غير موجود في هذه الغرفة'
             ], 400);
@@ -114,7 +142,7 @@ class GameRoomController extends Controller
         ]);
 
         // بث الرسالة للاعبين
-        Broadcast::channel('game.' . $room->id)->send(new \App\Events\ChatMessage([
+        broadcast(new \App\Events\ChatMessage($match, [
             'player_id' => $request->player_id,
             'player_name' => $request->player_name,
             'message' => $request->message
@@ -126,9 +154,11 @@ class GameRoomController extends Controller
     }
 
     // إنهاء اللعبة
-    public function end(Request $request, GameRoom $room)
+    public function end(Request $request, $roomId)
     {
-        if (!$room->hasPlayer($request->player_id)) {
+        $match = GameMatch::findOrFail($roomId);
+        
+        if (!$match->hasPlayer($request->player_id)) {
             return response()->json([
                 'message' => 'أنت غير موجود في هذه الغرفة'
             ], 400);
@@ -140,11 +170,16 @@ class GameRoomController extends Controller
             'moves_count' => 'required|integer'
         ]);
 
-        $room->status = 'ended';
-        $room->save();
+        $match->update([
+            'status' => 'completed',
+            'winner' => $request->winner,
+            'board_state' => $request->board_state,
+            'moves_count' => $request->moves_count,
+            'ended_at' => now()
+        ]);
 
         // بث حدث انتهاء اللعبة
-        Broadcast::channel('game.' . $room->id)->send(new \App\Events\GameEnded([
+        broadcast(new \App\Events\GameEnded($match, [
             'winner' => $request->winner,
             'board_state' => $request->board_state,
             'moves_count' => $request->moves_count

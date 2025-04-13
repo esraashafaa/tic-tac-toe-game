@@ -2,94 +2,117 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Validator;
+use App\Models\User;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class GuestAuthController extends Controller
 {
+    /**
+     * تسجيل دخول المستخدم كضيف
+     */
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-        ]);
+        try {
+            Log::info('محاولة تسجيل دخول ضيف', [
+                'payload' => $request->all(),
+                'headers' => $request->header()
+            ]);
+            
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json(['message' => 'بيانات غير صالحة', 'errors' => $validator->errors()], 422);
+            Log::info('البيانات صالحة', $validated);
+
+            // إنشاء اسم مستخدم فريد
+            $username = 'guest_' . Str::random(8);
+            
+            // إنشاء بريد إلكتروني فريد للضيف
+            $email = 'guest_' . Str::random(8) . '@guest.tictactoe.com';
+            
+            // إنشاء كلمة مرور عشوائية
+            $password = Str::random(12);
+            
+            // إنشاء مستخدم جديد
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $email,
+                'username' => $username,
+                'password' => Hash::make($password),
+                'is_guest' => true,
+            ]);
+            
+            Log::info('تم إنشاء المستخدم الضيف', ['user_id' => $user->id]);
+            
+            // إنشاء توكن للمصادقة
+            $token = $user->createToken('guest_token')->plainTextToken;
+            
+            Log::info('تم إنشاء توكن للمستخدم', ['user_id' => $user->id]);
+
+            return response()->json([
+                'success' => true,
+                'user' => $user,
+                'token' => $token,
+                'message' => 'تم تسجيل الدخول كضيف بنجاح'
+            ]);
+            
+        } catch (ValidationException $e) {
+            Log::error('خطأ في التحقق من صحة البيانات', [
+                'errors' => $e->errors(),
+                'payload' => $request->all()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'بيانات غير صالحة',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('خطأ في تسجيل الدخول كضيف', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'payload' => $request->all()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء تسجيل الدخول: ' . $e->getMessage()
+            ], 500);
         }
-
-        // تسجيل معلومات الطلب
-        Log::info('تسجيل دخول كضيف - بداية', [
-            'name' => $request->name,
-            'has_next_param' => $request->has('next'),
-            'next_param' => $request->query('next'),
-            'request_url' => $request->url(),
-            'full_url' => $request->fullUrl()
-        ]);
-
-        // إنشاء مستخدم جديد كضيف
-        $user = User::create([
-            'name' => $request->name,
-            'email' => 'guest_' . Str::random(10) . '@example.com',
-            'password' => Hash::make(Str::random(16)),
-            'is_guest' => true,
-        ]);
-
-        // إنشاء توكن للمصادقة
-        $token = $user->createToken('guest-token')->plainTextToken;
-
-        // الحصول على الرابط المطلوب من معلمة next أو من الجلسة
-        $next = $request->query('next');
-        $redirectUrl = $next ? '/' . ltrim($next, '/') : $request->session()->get('url.intended', route('games.choose'));
-        
-        // تسجيل معلومات إعادة التوجيه
-        Log::info('تسجيل دخول كضيف - إعادة التوجيه', [
-            'next_param' => $next,
-            'redirect_url' => $redirectUrl,
-            'session_intended' => $request->session()->get('url.intended'),
-            'user_id' => $user->id
-        ]);
-
-        // تسجيل دخول المستخدم
-        Auth::login($user);
-
-        return response()->json([
-            'token' => $token,
-            'user' => $user,
-            'message' => 'تم تسجيل الدخول كضيف بنجاح',
-            'redirect' => $redirectUrl
-        ], 200);
     }
-
+    
+    /**
+     * تسجيل خروج المستخدم الضيف
+     */
     public function logout(Request $request)
     {
         try {
-            // حذف التوكن الحالي
-            $request->user()->currentAccessToken()->delete();
-
-            Log::info('تم تسجيل خروج المستخدم الضيف بنجاح', [
-                'user_id' => $request->user()->id,
-                'name' => $request->user()->name
-            ]);
-
+            // حذف جميع التوكنات
+            $request->user()->tokens()->delete();
+            
+            // إذا كان مستخدم ضيف، قم بحذفه من قاعدة البيانات
+            if ($request->user()->is_guest) {
+                $request->user()->delete();
+            }
+            
             return response()->json([
                 'success' => true,
                 'message' => 'تم تسجيل الخروج بنجاح'
             ]);
-
         } catch (\Exception $e) {
-            Log::error('خطأ في تسجيل خروج المستخدم الضيف', [
+            Log::error('خطأ في تسجيل الخروج', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-
+            
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تسجيل الخروج'
+                'message' => 'حدث خطأ أثناء تسجيل الخروج: ' . $e->getMessage()
             ], 500);
         }
     }

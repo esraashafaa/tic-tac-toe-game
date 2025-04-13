@@ -53,18 +53,28 @@ class GuestPlayerController extends Controller
             $token = $user->createToken('guest-token')->plainTextToken;
             Log::info('Guest token created', ['token' => $token]);
 
+            // الحصول على الرابط المطلوب من معلمة next أو من الجلسة
+            $next = $request->query('next');
+            $redirectUrl = $next ? '/' . ltrim($next, '/') : $request->session()->get('url.intended', route('games.choose'));
+
+            Log::info('Guest redirect URL', [
+                'next_param' => $next,
+                'redirect_url' => $redirectUrl
+            ]);
+
             // إرجاع استجابة JSON للطلبات AJAX
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
                     'user' => $user,
                     'token' => $token,
-                    'message' => 'تم تسجيل الدخول بنجاح! مرحباً ' . $user->name
+                    'message' => 'تم تسجيل الدخول بنجاح! مرحباً ' . $user->name,
+                    'redirect' => $redirectUrl
                 ]);
             }
 
             // إعادة التوجيه للطلبات العادية
-            return redirect()->route('games.choose')->with('success', 'تم تسجيل الدخول بنجاح! مرحباً ' . $user->name);
+            return redirect($redirectUrl)->with('success', 'تم تسجيل الدخول بنجاح! مرحباً ' . $user->name);
             
         } catch (\Exception $e) {
             Log::error('Guest login error', [

@@ -31,7 +31,8 @@ class User extends Authenticatable
         'current_streak',
         'highest_streak',
         'is_guest',
-        'points'
+        'points',
+        'username'
     ];
 
     /**

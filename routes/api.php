@@ -25,10 +25,17 @@ use App\Http\Controllers\GuestAuthController;
 Route::post('auth/register', [AuthController::class, 'register']);
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::post('/guest-login', [GuestAuthController::class, 'login']);
+Route::post('/auth/guest/login', [GuestAuthController::class, 'login']);
 
 // مسارات أرشيف اللعبة (متاحة للجميع)
 Route::get('/game-archives', [GameArchiveController::class, 'index']);
 Route::post('/game-archives', [GameArchiveController::class, 'store']);
+
+// الحصول على مباراة بواسطة الرمز (متاح للجميع)
+Route::get('/game/matches/by-code/{code}', [GameMatchController::class, 'getByCode']);
+
+// مسارات المباريات العامة (متاحة للجميع)
+Route::get('/game/matches/all', [GameMatchController::class, 'index']);
 
 // المسارات المحمية (تتطلب مصادقة)
 Route::middleware('auth:sanctum')->group(function () {
@@ -62,3 +69,4 @@ Route::prefix('game/rooms')->group(function () {
 
 // مسارات تسجيل الدخول كضيف
 Route::middleware('auth:sanctum')->post('/guest-logout', [GuestAuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->post('/auth/guest/logout', [GuestAuthController::class, 'logout']);

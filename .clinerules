@@ -1,0 +1,84 @@
+# Tic Tac Toe Game Project Rules
+
+## Project Patterns
+
+### Frontend Structure
+- Use Next.js App Router for page routing
+- Organize components by feature domain (game, auth, etc.)
+- Create custom hooks for reusable logic
+- Implement React Context for game state management
+- Use CSS Modules for component styling
+
+### API Communication
+- Create dedicated service modules for API calls
+- Handle all API errors consistently with proper user feedback
+- Use axios for HTTP requests
+- Implement proper loading states for all async operations
+
+### WebSocket Integration
+- Use custom hook for WebSocket subscriptions
+- Properly clean up WebSocket connections in useEffect return functions
+- Follow React's immutability principles when updating state from WebSockets
+
+### Naming Conventions
+- React components: PascalCase (e.g., GameBoard.jsx)
+- Custom hooks: camelCase prefixed with "use" (e.g., useGameState.js)
+- Utility functions: camelCase (e.g., checkWinCondition.js)
+- CSS Modules: ComponentName.module.css
+- Context providers: PascalCase with "Provider" suffix (e.g., GameProvider)
+
+### State Management
+- Local component state for UI-specific state
+- React Context for shared state (game state, auth state, etc.)
+- Custom hooks for complex state logic
+
+## Code Style
+
+### React Preferences
+- Functional components with hooks
+- Destructure props in component parameters
+- Use the React Fragment shorthand (<>) when possible
+- Prefer explicit return statements for clarity
+
+### JavaScript Practices
+- Use ES6+ features (arrow functions, destructuring, etc.)
+- Prefer async/await over promise chains
+- Use optional chaining and nullish coalescing
+- Comment complex logic but write self-explanatory code
+
+### Backend Integration
+- Maintain compatibility with existing Laravel API structure
+- Use environment variables for configuration
+- Handle CSRF protection for Laravel API calls
+
+## UI/UX Guidelines
+
+### Design System
+- Use consistent spacing (multiples of 4px)
+- Follow established color palette (blue for X, purple for O)
+- Maintain accessible contrast ratios
+- Support both RTL and LTR text direction
+
+### Responsive Design
+- Mobile-first approach
+- Use media queries for breakpoints
+- Test on multiple screen sizes
+
+## Testing Guidelines
+- Write tests for core game logic
+- Test component rendering and interactions
+- Mock API calls in component tests
+- Test WebSocket integrations with proper mocks
+
+## Project Workflow
+- Update frontend components incrementally
+- Maintain backward compatibility during transition
+- Keep backend API unchanged
+- Document all significant changes in comments
+
+## Critical Implementation Details
+- Game board is a 3x3 grid (indices 0-8)
+- Game symbols are 'X' and 'O' (uppercase)
+- Player 'X' always goes first
+- Win patterns are rows, columns, and diagonals
+- Real-time updates use private channels with format 'match.{matchId}' 

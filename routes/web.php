@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GameArchiveController;
-use App\Http\Controllers\GuestAuthController;
+use App\Http\Controllers\GuestPlayerController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\GameController;
@@ -34,7 +34,7 @@ Route::middleware('guest')->group(function () {
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
     // مسار تسجيل دخول الضيوف
-    Route::post('guest-login', [GuestAuthController::class, 'login'])->name('guest.login');
+    Route::post('guest-login', [GuestPlayerController::class, 'login'])->name('guest.login');
 });
 
 // مسارات محمية تتطلب تسجيل الدخول
@@ -60,6 +60,11 @@ Route::middleware(['auth'])->group(function () {
 
     // اللعب ضد الكمبيوتر
     Route::get('/ai-game', [GameController::class, 'aiGame'])->name('ai-game');
+
+    // صفحة المباراة الجديدة
+    Route::get('/game', function () {
+        return view('game');
+    })->name('game');
 
     // لوحة التحكم (اختياري)
     Route::get('/dashboard', function () {

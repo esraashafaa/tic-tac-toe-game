@@ -14,13 +14,8 @@
             @endif
 
             <!-- نموذج تسجيل الدخول العادي -->
-            <form method="POST" action="{{ route('login') }}" class="space-y-4" id="loginForm">
+            <form method="POST" action="{{ route('login') }}" class="space-y-4">
                 @csrf
-                
-                <!-- إضافة معلمة next إذا وجدت في URL -->
-                @if (request()->has('next'))
-                <input type="hidden" name="next" value="{{ request()->get('next') }}">
-                @endif
 
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">البريد الإلكتروني</label>
@@ -64,13 +59,8 @@
             </div>
 
             <!-- نموذج تسجيل الدخول كضيف -->
-            <form method="POST" action="{{ route('guest.login') }}" class="space-y-4" id="guestLoginForm">
+            <form method="POST" action="{{ route('guest.login') }}" class="space-y-4">
                 @csrf
-                
-                <!-- إضافة معلمة next إذا وجدت في URL -->
-                @if (request()->has('next'))
-                <input type="hidden" name="next" value="{{ request()->get('next') }}">
-                @endif
 
                 <!-- عرض رسائل الخطأ للضيوف -->
                 @error('guest_error')
@@ -107,113 +97,4 @@
         </div>
     </div>
 </div>
-
-<!-- إضافة JavaScript لاستخدام AJAX -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // تعديل نموذج تسجيل الدخول العادي
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // الحصول على معلمة next من URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const nextParam = urlParams.get('next');
-            
-            // إنشاء FormData من النموذج
-            const formData = new FormData(loginForm);
-            
-            // إضافة معلمة next إذا وجدت
-            if (nextParam) {
-                formData.append('next', nextParam);
-            }
-            
-            // إرسال الطلب بواسطة AJAX
-            fetch('/login', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                credentials: 'include'
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('استجابة تسجيل الدخول:', data);
-                
-                if (data.token) {
-                    // حفظ بيانات المستخدم في localStorage
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    
-                    // استخدام رابط إعادة التوجيه من الخادم
-                    const redirectUrl = data.redirect || '/games/choose';
-                    console.log('إعادة التوجيه إلى:', redirectUrl);
-                    window.location.href = redirectUrl;
-                } else {
-                    alert(data.message || 'فشل تسجيل الدخول');
-                }
-            })
-            .catch(error => {
-                console.error('خطأ في تسجيل الدخول:', error);
-                alert('حدث خطأ أثناء تسجيل الدخول');
-            });
-        });
-    }
-    
-    // تعديل نموذج تسجيل الدخول كضيف
-    const guestLoginForm = document.getElementById('guestLoginForm');
-    if (guestLoginForm) {
-        guestLoginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // الحصول على معلمة next من URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const nextParam = urlParams.get('next');
-            
-            // إنشاء FormData من النموذج
-            const formData = new FormData(guestLoginForm);
-            
-            // إضافة معلمة next إذا وجدت
-            if (nextParam) {
-                formData.append('next', nextParam);
-            }
-            
-            // إرسال الطلب بواسطة AJAX
-            fetch('/guest-login', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                credentials: 'include'
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('استجابة تسجيل الدخول كضيف:', data);
-                
-                if (data.token) {
-                    // حفظ بيانات المستخدم في localStorage
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    
-                    // استخدام رابط إعادة التوجيه من الخادم
-                    const redirectUrl = data.redirect || '/games/choose';
-                    console.log('إعادة التوجيه إلى:', redirectUrl);
-                    window.location.href = redirectUrl;
-                } else {
-                    alert(data.message || 'فشل تسجيل الدخول كضيف');
-                }
-            })
-            .catch(error => {
-                console.error('خطأ في تسجيل الدخول كضيف:', error);
-                alert('حدث خطأ أثناء تسجيل الدخول كضيف');
-            });
-        });
-    }
-});
-</script>
 @endsection

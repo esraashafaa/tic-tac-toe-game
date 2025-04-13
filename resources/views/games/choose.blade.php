@@ -15,7 +15,7 @@
         </div>
 
         <!-- خيارات اللعب -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- اللعب ضد الكمبيوتر -->
             <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 hover:transform hover:scale-105 transition duration-300">
                 <div class="text-center">
@@ -42,6 +42,21 @@
                     <a href="/online-game" 
                        class="inline-block w-full py-3 px-6 bg-green-600 hover:bg-green-700 text-white rounded-xl text-lg font-semibold transition duration-200">
                         ابدأ اللعب
+                    </a>
+                </div>
+            </div>
+
+            <!-- واجهة مباراة محسنة -->
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 hover:transform hover:scale-105 transition duration-300">
+                <div class="text-center">
+                    <svg class="w-16 h-16 text-purple-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                    </svg>
+                    <h2 class="text-2xl font-bold text-white mb-4">واجهة مباراة محسنة</h2>
+                    <p class="text-gray-400 mb-6">استمتع بتجربة لعب أفضل وميزات جديدة</p>
+                    <a href="/game" 
+                       class="inline-block w-full py-3 px-6 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-lg font-semibold transition duration-200">
+                        تجربة الواجهة الجديدة
                     </a>
                 </div>
             </div>

@@ -17,8 +17,8 @@ return [
 
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
         '%s%s',
-        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
-        Sanctum::currentApplicationUrlWithPort()
+        'localhost,localhost:5173,localhost:5174,localhost:5175,localhost:5176,localhost:5177,localhost:5178,localhost:5179,localhost:5180,127.0.0.1,127.0.0.1:5173,127.0.0.1:5174,127.0.0.1:5175,127.0.0.1:5176,127.0.0.1:5177,127.0.0.1:5178,127.0.0.1:5179,127.0.0.1:5180,127.0.0.1:8000,::1,tic-tac-toe-game.test',
+        env('APP_URL') ? ','.parse_url(env('APP_URL'), PHP_URL_HOST) : ''
     ))),
 
     /*

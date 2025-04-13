@@ -27,6 +27,6 @@
     "license": "ISC",
     "dependencies": {
         "crypto-browserify": "^3.12.1",
-        "pusher-js": "^8.4.0-rc2"
+        "pusher-js": "^8.4.0"
     }
 }
